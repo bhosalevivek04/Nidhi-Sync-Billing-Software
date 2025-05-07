@@ -1,6 +1,6 @@
 package com.nidhisync.billing.config;
 
-//DataInitializer.java
+import java.util.List;
 import java.util.Set;
 
 import org.springframework.boot.CommandLineRunner;
@@ -15,28 +15,44 @@ import com.nidhisync.billing.repository.UserRepository;
 
 @Configuration
 public class DataInitializer {
-	@Bean
-	public CommandLineRunner loadData(RoleRepository roleRepo, UserRepository userRepo,
-			PasswordEncoder passwordEncoder) {
-		return args -> {
-			if (roleRepo.count() == 0) {
-				Role userRole = roleRepo.save(Role.builder().name("ROLE_USER").build());
-				Role adminRole = roleRepo.save(Role.builder().name("ROLE_ADMIN").build());
-				Role clerkRole = roleRepo.save(Role.builder().name("ROLE_CLERK").build());
-				System.out.println("Default roles inserted");
-			}
 
-			if (userRepo.count() == 0) {
-				Role userRole = roleRepo.findByName("ROLE_USER").orElseThrow();
-				Role adminRole = roleRepo.findByName("ROLE_ADMIN").orElseThrow();
-				User admin = User.builder().username("admin").email("admin@example.com")
-						.password(passwordEncoder.encode("admin123")).roles(Set.of(adminRole, userRole)) // ← now has
-																											// ROLE_ADMIN
-																											// too
-						.build();
-				userRepo.save(admin);
-			}
-		};
-	}
+    @Bean
+    public CommandLineRunner loadData(RoleRepository roleRepo,
+                                      UserRepository userRepo,
+                                      PasswordEncoder passwordEncoder) {
+        return args -> {
+            // Predefined roles
+            List<String> roleNames = List.of("ROLE_USER", "ROLE_ADMIN", "ROLE_CLERK");
 
+            // Ensure each role exists
+            for (String roleName : roleNames) {
+                try {
+                    roleRepo.findByName(roleName).orElseGet(() -> {
+                        System.out.println("Inserting role: " + roleName);
+                        return roleRepo.save(Role.builder().name(roleName).build());
+                    });
+                } catch (Exception e) {
+                    System.err.println("⚠️ Could not insert role '" + roleName + "': " + e.getMessage());
+                }
+            }
+
+            // Ensure default admin exists
+            if (userRepo.findByUsername("admin").isEmpty()) {
+                try {
+                    Role adminRole = roleRepo.findByName("ROLE_ADMIN")
+                            .orElseThrow(() -> new RuntimeException("ROLE_ADMIN missing"));
+                    User admin = User.builder()
+                            .username("admin")
+                            .email("admin@example.com")
+                            .password(passwordEncoder.encode("admin123"))
+                            .roles(Set.of(adminRole))
+                            .build();
+                    userRepo.save(admin);
+                    System.out.println("✅ Default admin user created.");
+                } catch (Exception e) {
+                    System.err.println("⚠️ Could not create default admin: " + e.getMessage());
+                }
+            }
+        };
+    }
 }

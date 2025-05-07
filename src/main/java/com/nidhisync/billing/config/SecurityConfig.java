@@ -54,22 +54,22 @@ public class SecurityConfig {
 			throws Exception {
 		http.csrf().disable().authenticationProvider(authProvider)
 				.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-				.authorizeHttpRequests(auth -> auth
-						// Public endpoints
-						.requestMatchers("/api/auth/**").permitAll()
+				.authorizeHttpRequests(auth -> auth.requestMatchers("/api/auth/**").permitAll()
+						.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
 
-						.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html",
-								"/swagger-resources/**", "/webjars/**")
-						.permitAll()
+						// ADMIN only
+						.requestMatchers("/api/users/**").hasRole("ADMIN")
 
-						.requestMatchers("/api/products/**").hasAnyRole("USER", "ADMIN")
-						.requestMatchers("/api/invoices/**").hasAnyRole("USER", "ADMIN")
-						.requestMatchers("/api/customers/**").hasAnyRole("USER", "ADMIN")
-						.requestMatchers("/api/products/**").hasAnyRole("USER", "ADMIN")
-						.requestMatchers("/api/users/**").hasRole("ADMIN").requestMatchers("/api/categories/**")
-						.hasAnyRole("USER", "ADMIN")
+						// CLERK & ADMIN
+						.requestMatchers("/api/customers/**").hasAnyRole("CLERK", "ADMIN")
+						.requestMatchers("/api/invoices/**").hasAnyRole("CLERK", "ADMIN")
 
-						.anyRequest().authenticated())
+						// All authenticated roles
+						.requestMatchers("/api/products/**").hasAnyRole("USER", "CLERK", "ADMIN")
+						.requestMatchers("/api/categories/**").hasAnyRole("USER", "CLERK", "ADMIN")
+						.requestMatchers("/api/profile/**").authenticated()
+
+						.anyRequest().denyAll())
 				.addFilterBefore(new JwtFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();

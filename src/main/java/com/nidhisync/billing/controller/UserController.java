@@ -25,6 +25,13 @@ public class UserController {
         return ResponseEntity.ok(userService.createUser(dto));
     }
 
+    // Admin can update user roles (including clearing roles)
+    @PutMapping("/{id}/roles")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UserResponseDto> updateRoles(@PathVariable Long id, @Valid @RequestBody UserRequestDto dto) {
+        return ResponseEntity.ok(userService.updateUserRoles(id, dto));
+    }
+
     // Admin can view all users
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
