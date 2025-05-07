@@ -16,30 +16,27 @@ import com.nidhisync.billing.repository.UserRepository;
 @Configuration
 public class DataInitializer {
 	@Bean
-	public CommandLineRunner loadData(
-	    RoleRepository roleRepo,
-	    UserRepository userRepo,
-	    PasswordEncoder passwordEncoder
-	) {
-	  return args -> {
-	    if (roleRepo.count() == 0) {
-	      Role userRole  = roleRepo.save(Role.builder().name("ROLE_USER").build());
-	      Role adminRole = roleRepo.save(Role.builder().name("ROLE_ADMIN").build());
-	      System.out.println("Default roles inserted");
-	    }
+	public CommandLineRunner loadData(RoleRepository roleRepo, UserRepository userRepo,
+			PasswordEncoder passwordEncoder) {
+		return args -> {
+			if (roleRepo.count() == 0) {
+				Role userRole = roleRepo.save(Role.builder().name("ROLE_USER").build());
+				Role adminRole = roleRepo.save(Role.builder().name("ROLE_ADMIN").build());
+				Role clerkRole = roleRepo.save(Role.builder().name("ROLE_CLERK").build());
+				System.out.println("Default roles inserted");
+			}
 
-	    if (userRepo.count() == 0) {
-	      Role userRole = roleRepo.findById(1L).orElseThrow();
-	      User admin = User.builder()
-	                       .username("admin")
-	                       .email("admin@example.com")
-	                       .password(passwordEncoder.encode("admin123"))
-	                       .roles(Set.of(userRole))
-	                       .build();
-	      userRepo.save(admin);
-	      System.out.println("Test user ‘admin’ inserted");
-	    }
-	  };
+			if (userRepo.count() == 0) {
+				Role userRole = roleRepo.findByName("ROLE_USER").orElseThrow();
+				Role adminRole = roleRepo.findByName("ROLE_ADMIN").orElseThrow();
+				User admin = User.builder().username("admin").email("admin@example.com")
+						.password(passwordEncoder.encode("admin123")).roles(Set.of(adminRole, userRole)) // ← now has
+																											// ROLE_ADMIN
+																											// too
+						.build();
+				userRepo.save(admin);
+			}
+		};
 	}
 
 }

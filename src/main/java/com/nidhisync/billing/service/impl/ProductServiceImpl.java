@@ -22,9 +22,10 @@ public class ProductServiceImpl implements ProductService {
   private final ProductRepository productRepo;
   private final CategoryRepository categoryRepo;
 
-  public ProductServiceImpl(ProductRepository p, CategoryRepository c) {
-    this.productRepo = p;
-    this.categoryRepo = c;
+  public ProductServiceImpl(ProductRepository productRepo,
+                            CategoryRepository categoryRepo) {
+    this.productRepo = productRepo;
+    this.categoryRepo = categoryRepo;
   }
 
   @Override
@@ -81,9 +82,12 @@ public class ProductServiceImpl implements ProductService {
   }
 
   private ProductResponseDto toDto(Product p) {
-    Long catId = p.getCategory() != null ? p.getCategory().getId() : null;
-    String catName = p.getCategory() != null ? p.getCategory().getName() : null;
-
+    Long catId = null;
+    String catName = null;
+    if (p.getCategory() != null) {
+      catId = p.getCategory().getId();
+      catName = p.getCategory().getName();
+    }
     return ProductResponseDto.builder()
       .id(p.getId())
       .name(p.getName())

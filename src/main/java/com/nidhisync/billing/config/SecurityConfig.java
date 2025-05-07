@@ -58,13 +58,10 @@ public class SecurityConfig {
 						// Public endpoints
 						.requestMatchers("/api/auth/**").permitAll()
 
-						// Swagger UI endpoints (important for Swagger to work)
 						.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html",
 								"/swagger-resources/**", "/webjars/**")
 						.permitAll()
-//                .anyRequest().permitAll() 
 
-						// Protected endpoints
 						.requestMatchers("/api/products/**").hasAnyRole("USER", "ADMIN")
 						.requestMatchers("/api/invoices/**").hasAnyRole("USER", "ADMIN")
 						.requestMatchers("/api/customers/**").hasAnyRole("USER", "ADMIN")
@@ -72,7 +69,6 @@ public class SecurityConfig {
 						.requestMatchers("/api/users/**").hasRole("ADMIN").requestMatchers("/api/categories/**")
 						.hasAnyRole("USER", "ADMIN")
 
-						// All other endpoints require authentication
 						.anyRequest().authenticated())
 				.addFilterBefore(new JwtFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
 

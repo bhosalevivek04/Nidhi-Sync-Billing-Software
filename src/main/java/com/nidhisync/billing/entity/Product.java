@@ -1,19 +1,8 @@
 // src/main/java/com/nidhisync/billing/entity/Product.java
 package com.nidhisync.billing.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
 @Table(name = "products")
@@ -32,8 +21,9 @@ public class Product {
   @Column(nullable = false)
   private Double price;
 
-  /**
-   * Map this field to the existing DB column named "stock"
+  /** 
+   * This tells Hibernate that the DB column is actually named “stock”
+   * but in Java we call it stockQuantity.
    */
   @Column(name = "stock", nullable = false)
   private Integer stockQuantity;
@@ -42,6 +32,6 @@ public class Product {
   private String barcode;
 
   @ManyToOne
-  @JoinColumn(name = "category_id", nullable = false)
+  @JoinColumn(name = "category_id")
   private Category category;
 }
