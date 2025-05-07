@@ -1,27 +1,27 @@
+// src/main/java/com/nidhisync/billing/dto/InvoiceResponseDto.java
 package com.nidhisync.billing.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-
-@Getter
-@Setter
+@Getter @Setter
 @AllArgsConstructor
 public class InvoiceResponseDto {
-	private Long id;
-	private LocalDateTime date;
-	private Double total;
-	private List<Item> items;
+  private Long id;
+  private LocalDateTime date;
+  private double total;
+  private List<Item> items;
+  private Long userId;              // ← new field
 
-	@Data
-	@AllArgsConstructor
-	public static class Item {
-		Long productId;
-		Integer quantity;
-		Double price;
-	}
+  @Getter @Setter @AllArgsConstructor
+  public static class Item {
+    private Long productId;
+    private int quantity;
+    private double price;
+    private double lineTotal;
+  }
 }

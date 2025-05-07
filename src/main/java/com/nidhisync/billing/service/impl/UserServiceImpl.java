@@ -72,4 +72,10 @@ public class UserServiceImpl implements UserService {
                         .collect(Collectors.toSet())
         );
     }
+
+	@Override
+	public UserResponseDto findByUsername(String username) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

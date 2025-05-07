@@ -1,6 +1,12 @@
 package com.nidhisync.billing.repository;
 
-import com.nidhisync.billing.entity.Invoice;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface InvoiceRepository extends JpaRepository<Invoice,Long> {}
+import com.nidhisync.billing.entity.Invoice;
+
+public interface InvoiceRepository extends JpaRepository<Invoice,Long> {
+	List<Invoice> findByUserId(Long userId);
+
+}

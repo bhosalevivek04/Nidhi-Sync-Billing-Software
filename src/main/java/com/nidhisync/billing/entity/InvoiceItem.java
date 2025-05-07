@@ -25,4 +25,5 @@ public class InvoiceItem {
 	private Long productId; // or @ManyToOne Product product
 	private Integer quantity;
 	private Double price;
+	private Double lineTotal;
 }

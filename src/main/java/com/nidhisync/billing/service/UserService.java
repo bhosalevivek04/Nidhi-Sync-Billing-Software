@@ -8,6 +8,7 @@ import java.util.List;
 public interface UserService {
 
 	UserResponseDto createUser(UserRequestDto dto);
+	UserResponseDto findByUsername(String username);
 
 	List<UserResponseDto> listAllUsers();
 
