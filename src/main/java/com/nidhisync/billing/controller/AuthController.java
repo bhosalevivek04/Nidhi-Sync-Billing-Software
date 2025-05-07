@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.nidhisync.billing.dto.AuthRequest;
-import com.nidhisync.billing.dto.AuthResponse;
+import com.nidhisync.billing.dto.AuthRequestDto;
+import com.nidhisync.billing.dto.AuthResponseDto;
 import com.nidhisync.billing.dto.RegisterRequest;
 import com.nidhisync.billing.entity.User;
 import com.nidhisync.billing.repository.RoleRepository;
@@ -46,13 +46,13 @@ public class AuthController {
 	}
 
 	@PostMapping("/login")
-	public AuthResponse login(@Valid @RequestBody AuthRequest rq) {
+	public AuthResponseDto login(@Valid @RequestBody AuthRequestDto rq) {
 		User user = userRepo.findByUsername(rq.getUsername()).orElseThrow();
 		if (!passwordEncoder.matches(rq.getPassword(), user.getPassword())) {
 			throw new RuntimeException("Invalid credentials");
 		}
 		List<String> roles = user.getRoles().stream().map(r -> r.getName()).toList();
 		String token = jwtUtil.generateToken(user.getUsername(), roles);
-		return new AuthResponse(token);
+		return new AuthResponseDto(token);
 	}
 }

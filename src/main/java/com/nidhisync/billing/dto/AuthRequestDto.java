@@ -6,7 +6,7 @@ import lombok.*;
 // generate no‑arg and all‑args constructors + getters/setters
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
-public class AuthRequest {
+public class AuthRequestDto {
 
   @NotBlank(message = "Username is required")
   private String username;

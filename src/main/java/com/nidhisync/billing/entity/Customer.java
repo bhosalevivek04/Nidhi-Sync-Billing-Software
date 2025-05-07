@@ -1,4 +1,3 @@
-// src/main/java/com/nidhisync/billing/entity/Product.java
 package com.nidhisync.billing.entity;
 
 import jakarta.persistence.Column;
@@ -6,8 +5,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,10 +13,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "products")
+@Table(name = "customers")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
-public class Product {
-
+public class Customer {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
@@ -27,21 +23,9 @@ public class Product {
   @Column(nullable = false)
   private String name;
 
-  private String description;
+  @Column(unique = true)
+  private String email;
 
-  @Column(nullable = false)
-  private Double price;
-
-  /**
-   * Map this field to the existing DB column named "stock"
-   */
-  @Column(name = "stock", nullable = false)
-  private Integer stockQuantity;
-
-  @Column(nullable = false, unique = true)
-  private String barcode;
-
-  @ManyToOne
-  @JoinColumn(name = "category_id", nullable = false)
-  private Category category;
+  private String phone;
+  private String address;
 }

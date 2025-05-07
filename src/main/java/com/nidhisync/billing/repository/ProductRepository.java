@@ -1,6 +1,9 @@
+// src/main/java/com/nidhisync/billing/repository/ProductRepository.java
 package com.nidhisync.billing.repository;
 
-import com.nidhisync.billing.entity.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ProductRepository extends JpaRepository<Product,Long> {}
+import com.nidhisync.billing.entity.Product;
+
+public interface ProductRepository extends JpaRepository<Product, Long> {
+}

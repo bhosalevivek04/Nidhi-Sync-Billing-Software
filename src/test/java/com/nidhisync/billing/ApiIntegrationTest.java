@@ -17,7 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nidhisync.billing.dto.AuthRequest;
+import com.nidhisync.billing.dto.AuthRequestDto;
 import com.nidhisync.billing.dto.RegisterRequest;
 
 @SpringBootTest
@@ -43,7 +43,7 @@ class ApiIntegrationTest {
     MvcResult res = mvc.perform(post("/api/auth/login")
         .contentType(MediaType.APPLICATION_JSON)
         .content(mapper.writeValueAsString(
-          new AuthRequest("testu", "secure123"))))
+          new AuthRequestDto("testu", "secure123"))))
       .andExpect(status().isOk())
       .andReturn();
 
