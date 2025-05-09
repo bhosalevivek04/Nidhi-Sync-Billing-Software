@@ -44,6 +44,7 @@ public class DataInitializer {
                     User admin = User.builder()
                             .username("admin")
                             .email("admin@example.com")
+                            .mobileNumber("+911234567890")
                             .password(passwordEncoder.encode("admin123"))
                             .roles(Set.of(adminRole))
                             .build();

@@ -12,4 +12,7 @@ public interface ProductService {
   ProductResponseDto getById(Long id);
   ProductResponseDto update(Long id, ProductRequestDto rq);
   void delete(Long id);
+  
+  ProductResponseDto getByBarcode(String barcode);
+  byte[] generateBarcodeImage(String barcode) throws Exception;
 }

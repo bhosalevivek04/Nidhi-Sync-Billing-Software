@@ -35,11 +35,20 @@ public class InvoiceServiceImpl implements InvoiceService {
 
   @Override
   public InvoiceResponseDto create(InvoiceRequestDto rq) {
-    // 1) build items and compute line totals
+    // 1) Build InvoiceItem list, checking stock and computing lineTotal
     List<InvoiceItem> items = rq.getItems().stream()
       .map(i -> {
         Product p = productRepo.findById(i.getProductId())
-                     .orElseThrow(() -> new IllegalArgumentException("Unknown product " + i.getProductId()));
+          .orElseThrow(() -> new IllegalArgumentException("Unknown product " + i.getProductId()));
+
+        // Validate stock
+        if (p.getStockQuantity() < i.getQuantity()) {
+          throw new IllegalArgumentException(
+            "Insufficient stock for product '" + p.getName() +
+            "' (available=" + p.getStockQuantity() +
+            ", requested=" + i.getQuantity() + ")");
+        }
+
         double lineTotal = p.getPrice() * i.getQuantity();
         return InvoiceItem.builder()
                    .productId(p.getId())
@@ -50,12 +59,19 @@ public class InvoiceServiceImpl implements InvoiceService {
       })
       .collect(Collectors.toList());
 
-    // 2) sum up invoice total
+    // 2) Decrement stock in DB
+    items.forEach(it -> {
+      Product p = productRepo.findById(it.getProductId()).get();
+      p.setStockQuantity(p.getStockQuantity() - it.getQuantity());
+      productRepo.save(p);
+    });
+
+    // 3) Sum up invoice total
     double total = items.stream()
                         .mapToDouble(InvoiceItem::getLineTotal)
                         .sum();
 
-    // 3) save the invoice header
+    // 4) Save invoice header
     Invoice inv = Invoice.builder()
                   .userId(rq.getUserId())
                   .date(LocalDateTime.now())
@@ -63,12 +79,12 @@ public class InvoiceServiceImpl implements InvoiceService {
                   .build();
     Invoice savedInv = invoiceRepo.save(inv);
 
-    // 4) link items to invoice and save
+    // 5) Link items to invoice and save details
     Long invoiceId = savedInv.getId();
     items.forEach(item -> item.setInvoiceId(invoiceId));
     itemRepo.saveAll(items);
 
-    // 5) build DTO items
+    // 6) Map to response‑DTO
     List<InvoiceResponseDto.Item> dtoItems = items.stream()
       .map(it -> new InvoiceResponseDto.Item(
                    it.getProductId(),
@@ -77,7 +93,6 @@ public class InvoiceServiceImpl implements InvoiceService {
                    it.getLineTotal()))
       .collect(Collectors.toList());
 
-    // 6) return DTO in correct constructor order: id, date, total, items, userId
     return new InvoiceResponseDto(
       savedInv.getId(),
       savedInv.getDate(),
@@ -105,11 +120,11 @@ public class InvoiceServiceImpl implements InvoiceService {
   @Override
   public InvoiceResponseDto getById(Long id) {
     Invoice inv = invoiceRepo.findById(id)
-                  .orElseThrow(() -> new IllegalArgumentException("Invoice not found: " + id));
+      .orElseThrow(() -> new IllegalArgumentException("Invoice not found: " + id));
     return toDto(inv);
   }
 
-  // helper to map Invoice → InvoiceResponseDto
+  // helper to convert entity → DTO
   private InvoiceResponseDto toDto(Invoice inv) {
     List<InvoiceResponseDto.Item> dtoItems = itemRepo.findByInvoiceId(inv.getId()).stream()
       .map(it -> new InvoiceResponseDto.Item(

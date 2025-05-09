@@ -1,5 +1,14 @@
 package com.nidhisync.billing.service.impl;
 
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.nidhisync.billing.dto.UserRequestDto;
 import com.nidhisync.billing.dto.UserResponseDto;
 import com.nidhisync.billing.entity.Role;
@@ -7,14 +16,8 @@ import com.nidhisync.billing.entity.User;
 import com.nidhisync.billing.repository.RoleRepository;
 import com.nidhisync.billing.repository.UserRepository;
 import com.nidhisync.billing.service.UserService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -33,7 +36,8 @@ public class UserServiceImpl implements UserService {
 				.collect(Collectors.toSet());
 
 		User user = User.builder().username(dto.getUsername()).email(dto.getEmail())
-				.password(passwordEncoder.encode(dto.getPassword())).roles(roles).build();
+				.password(passwordEncoder.encode(dto.getPassword())).mobileNumber(dto.getMobileNumber()) // ✅ important
+				.roles(roles).build();
 
 		User saved = userRepo.save(user);
 		return toDto(saved);
@@ -41,13 +45,13 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public UserResponseDto updateUserRoles(Long id, UserRequestDto dto) {
-		User user = userRepo.findById(id)
-				.orElseThrow(() -> new IllegalArgumentException("User not found: " + id));
+		User user = userRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("User not found: " + id));
 
-		Set<Role> roles = dto.getRoles() == null ? Set.of() : dto.getRoles().stream()
-				.map(name -> roleRepo.findByName(name)
-						.orElseThrow(() -> new IllegalArgumentException("Role not found: " + name)))
-				.collect(Collectors.toSet());
+		Set<Role> roles = dto.getRoles() == null ? Set.of()
+				: dto.getRoles().stream()
+						.map(name -> roleRepo.findByName(name)
+								.orElseThrow(() -> new IllegalArgumentException("Role not found: " + name)))
+						.collect(Collectors.toSet());
 
 		user.setRoles(roles);
 		User updated = userRepo.save(user);
@@ -71,14 +75,27 @@ public class UserServiceImpl implements UserService {
 	}
 
 	private UserResponseDto toDto(User user) {
-		return new UserResponseDto(user.getId(), user.getUsername(), user.getEmail(),
-				user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()));
+		return new UserResponseDto(user.getId(), user.getUsername(), user.getEmail(), user.getMobileNumber(), // ←
+																												// mobile
+				user.getRoles().stream().map(Role::getName).collect(Collectors.toList()) // ← List<String>
+		);
 	}
 
 	@Override
 	public UserResponseDto findByUsername(String username) {
-		return userRepo.findByUsername(username).map(this::toDto)
-				.orElseThrow(() -> new IllegalArgumentException("User not found: " + username));
+		User user = userRepo.findByUsername(username)
+				.orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+		return UserResponseDto.builder().id(user.getId()).username(user.getUsername()).email(user.getEmail())
+				.mobileNumber(user.getMobileNumber()).roles(user.getRoles().stream().map(Role::getName).toList())
+				.build();
+	}
+
+	@Override
+	public UserResponseDto updateRoles(Long id, Set<String> newRoles) {
+		UserRequestDto dto = new UserRequestDto();
+		dto.setRoles(newRoles);
+		// reuse your existing logic
+		return updateUserRoles(id, dto);
 	}
 
 }

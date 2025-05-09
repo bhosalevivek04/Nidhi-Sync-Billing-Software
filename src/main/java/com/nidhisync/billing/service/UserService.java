@@ -1,9 +1,10 @@
 package com.nidhisync.billing.service;
 
+import java.util.List;
+import java.util.Set;
+
 import com.nidhisync.billing.dto.UserRequestDto;
 import com.nidhisync.billing.dto.UserResponseDto;
-
-import java.util.List;
 
 public interface UserService {
 
@@ -16,6 +17,7 @@ public interface UserService {
 
 	void deleteUser(Long id);
 
+	UserResponseDto updateRoles(Long id, Set<String> newRoles);
 	// New method to update user roles
 	UserResponseDto updateUserRoles(Long id, UserRequestDto dto);
 }

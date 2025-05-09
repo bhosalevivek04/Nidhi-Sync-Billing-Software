@@ -35,7 +35,7 @@ class ApiIntegrationTest {
     mvc.perform(post("/api/auth/register")
         .contentType(MediaType.APPLICATION_JSON)
         .content(mapper.writeValueAsString(
-          new RegisterRequest("testu", "t@e.com", "secure123"))))
+          new RegisterRequest("testu", "t@e.com","+911111111111", "secure123"))))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.message").value("Registration successful"));
 
