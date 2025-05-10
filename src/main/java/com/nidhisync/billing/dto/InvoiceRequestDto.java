@@ -10,8 +10,12 @@ import java.util.List;
 
 @Getter @Setter
 public class InvoiceRequestDto {
+
   @NotNull(message = "userId is required")
   private Long userId;
+
+  @NotNull(message = "Tax rate is required")  // e.g., 18.0 for 18%
+  private Double taxRate;
 
   @NotEmpty(message = "At least one item is required")
   private List<Item> items;

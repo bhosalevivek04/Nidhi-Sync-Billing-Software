@@ -2,6 +2,7 @@ package com.nidhisync.billing.entity;
 
 import java.time.LocalDateTime;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -18,5 +19,17 @@ public class Invoice {
   @Id @GeneratedValue Long id;
   private Long userId;          // or @ManyToOne User user
   private LocalDateTime date;
-  private Double total;
+
+  @Column(nullable = false)
+  private Double subtotal;
+  
+  @Column(nullable = false)
+  private Double taxRate;
+
+  @Column(nullable = false)
+  private Double taxAmount;
+
+  @Column(nullable = false)
+  private Double grandTotal;
+
 }
