@@ -2,6 +2,7 @@ package com.nidhisync.billing.controller;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -34,9 +35,28 @@ public class AnalyticsController {
 
   /** Daily Revenue Chart between two dates */
   @GetMapping("/revenue-chart")
-  public ResponseEntity<Map<LocalDate, Double>> revenueChart(
+  public ResponseEntity<?> revenueChart(
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+
+    if (from.isAfter(to)) {
+      return ResponseEntity.badRequest().body("Invalid date range: 'from' must be before 'to'");
+    }
+
     return ResponseEntity.ok(analyticsService.getRevenueChart(from, to));
+  }
+
+  /** Top selling products between dates */
+  @GetMapping("/top-products")
+  public ResponseEntity<?> topProducts(
+      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+      @RequestParam(defaultValue = "5") int limit) {
+
+    if (from.isAfter(to)) {
+      return ResponseEntity.badRequest().body("Invalid date range: 'from' must be before 'to'");
+    }
+
+    return ResponseEntity.ok(analyticsService.getTopSellingProducts(from, to, limit));
   }
 }
